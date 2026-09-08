@@ -1,163 +1,122 @@
-<!doctype html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>貓六爪｜管理後台・首頁內容設定</title>
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>貓六爪｜管理中心</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0b1024;color:#f5f7ff;font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif}
-.wrap{width:min(900px,92%);margin:auto}.top{padding:28px 0;border-bottom:1px solid #2b365a}
-h1{margin:0;font-size:28px}.sub{color:#929dbd;margin-top:6px}.panel{margin:24px 0;padding:26px;border:1px solid #354064;border-radius:20px;background:#121936}
-h2{margin-top:0;font-size:21px}.field{margin:18px 0}.field label{display:block;font-weight:800;margin-bottom:7px}
-input,textarea{width:100%;padding:13px;border-radius:10px;border:1px solid #3a476d;background:#0d1430;color:#fff;font-size:15px;font-family:inherit}textarea{min-height:100px;resize:vertical}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.btn{padding:13px 20px;border:0;border-radius:10px;background:linear-gradient(135deg,#7447ff,#ff4fbe);color:#fff;font-weight:900;cursor:pointer}
-.btn.secondary{background:#1a2343;border:1px solid #3a476d}.status{margin-left:12px;color:#63e7ff}
-#editor{display:none}.login{max-width:460px;margin:70px auto}.error{color:#ff78bf;margin-top:10px;white-space:pre-wrap}.preview{margin-top:22px;padding:20px;border-radius:16px;background:#171e3b}.preview h3{font-size:30px;margin:8px 0}.preview p{color:#aeb7d1}.address{color:#cbd3e7}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px}.small{font-size:12px;color:#7e89aa}
-@media(max-width:650px){.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}}
-</style>
-</head>
-<body>
+.wrap{width:min(1120px,92%);margin:auto}.top{padding:28px 0;border-bottom:1px solid #2b365a}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}.logoMark{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#7447ff,#ff4fbe);display:grid;place-items:center;font-size:23px}
+h1{margin:0;font-size:28px}.sub,.muted{color:#929dbd}.panel{margin:22px 0;padding:22px;border:1px solid #354064;border-radius:20px;background:#121936}
+h2{margin-top:0}.btn{padding:11px 17px;border:0;border-radius:10px;background:linear-gradient(135deg,#7447ff,#ff4fbe);color:#fff;font-weight:900;cursor:pointer}
+.btn.secondary{background:#1a2343;border:1px solid #3a476d}.login{max-width:460px;margin:70px auto}.field{margin:16px 0}.field label{display:block;font-weight:800;margin-bottom:7px}
+input{width:100%;padding:13px;border-radius:10px;border:1px solid #3a476d;background:#0d1430;color:#fff;font-size:15px;font-family:inherit}
+.error{color:#ff78bf;margin-top:10px;white-space:pre-wrap}.status{color:#63e7ff;margin-left:10px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{padding:18px;border:1px solid #334064;border-radius:16px;background:#0f1630}.stat b{display:block;font-size:30px;margin-top:8px}.label{color:#9aa5c7;font-size:13px}
+.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{padding:18px;border:1px solid #334064;border-radius:16px;background:#0f1630}.card h3{margin:0 0 8px}.card p{margin:0;color:#9faaca;line-height:1.6}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.pill{display:inline-block;padding:6px 10px;border-radius:99px;background:#1d2750;color:#b8c2e2;font-size:12px}
+.activityName{font-size:22px;font-weight:900}.empty{padding:18px;border:1px dashed #3b476e;border-radius:14px;color:#9da8c5}
+.table{width:100%;border-collapse:collapse}.table th,.table td{padding:9px;border-bottom:1px solid #283456;text-align:left;font-size:13px}.table th{color:#aeb7d1}
+#editor{display:none}@media(max-width:800px){.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}}
+@media(max-width:520px){.cards{grid-template-columns:1fr}.topbar{align-items:flex-start}}
+</style></head><body>
 <div class="wrap">
-<div class="top"><div class="topbar"><div><h1>⚙️ 貓六爪網站設定</h1><div class="sub">首頁文字與基本資訊｜真連線版</div></div><button id="logoutBtn" class="btn secondary" style="display:none" onclick="logoutAdmin()">登出</button></div></div>
+<div class="top"><div class="topbar"><div class="brand"><div class="logoMark">🐾</div><div><h1>貓六爪管理中心</h1><div class="sub">網站營運總覽｜登入後管理整個貓六爪網站</div></div></div>
+<button id="logoutBtn" class="btn secondary" style="display:none" onclick="logoutAdmin()">登出</button></div></div>
 
-<div id="login" class="panel login">
-<h2>🔐 管理員登入</h2>
+<div id="login" class="panel login"><h2>🔐 管理員登入</h2>
 <div class="field"><label>Email</label><input id="email" type="email" placeholder="管理員 Email"></div>
 <div class="field"><label>密碼</label><input id="password" type="password" placeholder="密碼"></div>
-<button class="btn" onclick="loginAdmin()">登入</button>
-<div id="loginError" class="error"></div>
-</div>
+<button class="btn" onclick="loginAdmin()">登入管理中心</button><div id="loginError" class="error"></div></div>
 
 <div id="editor">
-<div class="panel"><h2>🏠 首頁主視覺</h2>
-<div class="field"><label>主標題</label><input id="hero_title"></div>
-<div class="field"><label>副標題</label><textarea id="hero_subtitle"></textarea></div></div>
+<div class="panel"><h2>📊 今天的網站狀況</h2><div class="stats">
+<div class="stat"><div class="label">目前進行中活動</div><b id="statActive">0</b></div>
+<div class="stat"><div class="label">目前可選號碼</div><b id="statAvailable">0</b></div>
+<div class="stat"><div class="label">目前參加人數</div><b id="statParticipants">0</b></div>
+<div class="stat"><div class="label">累計活動數</div><b id="statTotal">0</b></div></div></div>
 
-<div class="panel"><h2>🎯 首頁介紹</h2><div class="grid">
-<div class="field"><label>區塊標題</label><input id="intro_title"></div>
-<div class="field"><label>區塊副標</label><input id="intro_subtitle"></div></div></div>
-
-<div class="panel"><h2>🏪 台主招募</h2>
-<div class="field"><label>招募標題</label><input id="owner_title"></div>
-<div class="field"><label>招募內容</label><textarea id="owner_text"></textarea></div>
-<div class="field"><label>招募標語</label><input id="owner_tagline"></div></div>
-
-<div class="panel"><h2>📍 店家資訊</h2>
-<div class="field"><label>店家名稱</label><input id="store_name"></div>
-<div class="field"><label>店家地址</label><input id="address"></div>
 <div class="grid">
-<div class="field"><label>LINE 玩家群連結</label><input id="line_url" placeholder="之後填入"></div>
-<div class="field"><label>Facebook 連結</label><input id="facebook_url" placeholder="之後填入"></div>
-</div></div>
+<div class="panel"><h2>🎯 目前活動</h2><div id="activityBox" class="empty">正在讀取活動資料…</div></div>
+<div class="panel"><h2>🧭 管理入口</h2><div class="cards">
+<div class="card"><h3>🏠 首頁管理</h3><p>修改首頁主標題、介紹、台主招募、店家資訊與社群連結。</p><div class="actions"><button class="btn" onclick="document.getElementById('homepage').scrollIntoView({behavior:'smooth'})">管理首頁</button></div></div>
+<div class="card"><h3>🎯 活動管理</h3><p>進入目前的夾中選號活動頁。</p><div class="actions"><button class="btn secondary" onclick="location.href='activity.html'">前往活動頁</button></div></div>
+<div class="card"><h3>⚔️ 戰鬥陀螺</h3><p>查看目前對外呈現的戰鬥陀螺專區。</p><div class="actions"><button class="btn secondary" onclick="location.href='battle.html'">前往專區</button></div></div>
+<div class="card"><h3>🏪 台主招募</h3><p>查看目前對外呈現的台主合作資訊。</p><div class="actions"><button class="btn secondary" onclick="location.href='owner.html'">查看頁面</button></div></div>
+</div></div></div>
 
-<div class="panel">
-<button class="btn" onclick="save()">💾 儲存首頁設定</button><span id="status" class="status"></span>
-<div class="preview"><b>即時預覽</b><h3 id="pvTitle"></h3><p id="pvSub"></p><div class="address">📍 <span id="pvAddress"></span></div></div>
-</div>
-</div>
-</div>
+<div class="panel" id="homepage"><h2>🏠 首頁內容管理</h2><div class="muted">這裡保留目前的首頁設定，之後可再集中加入圖片與更多首頁模組。</div>
+<div class="field"><label>首頁主標題</label><input id="hero_title"></div>
+<div class="field"><label>首頁副標題</label><input id="hero_subtitle"></div>
+<div class="field"><label>介紹區標題</label><input id="intro_title"></div>
+<div class="field"><label>介紹區副標題</label><input id="intro_subtitle"></div>
+<div class="field"><label>台主招募標題</label><input id="owner_title"></div>
+<div class="field"><label>台主招募內容</label><input id="owner_text"></div>
+<div class="field"><label>台主招募標語</label><input id="owner_tagline"></div>
+<div class="field"><label>店家名稱</label><input id="store_name"></div>
+<div class="field"><label>地址</label><input id="address"></div>
+<div class="field"><label>LINE 玩家群連結</label><input id="line_url"></div>
+<div class="field"><label>Facebook 連結</label><input id="facebook_url"></div>
+<button class="btn" onclick="saveHomepage()">💾 儲存首頁設定</button><span id="saveStatus" class="status"></span></div>
+
+<div class="panel"><h2>🕘 最近參加紀錄</h2><div id="participantsBox" class="empty">正在讀取…</div></div>
+</div></div>
 
 <script>
 const SUPABASE_URL="https://qxbagchxhmstznkorcgk.supabase.co";
 const SUPABASE_KEY="sb_publishable_I7P-WhRTV2js0zbxf8Tfkg_rYjWf4oZ";
 const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
 const $=id=>document.getElementById(id);
-const loginPanel=$("login"), editorPanel=$("editor"), loginError=$("loginError");
-const statusEl=$("status"), emailEl=$("email"), passwordEl=$("password"), logoutBtn=$("logoutBtn");
 const ids=["hero_title","hero_subtitle","intro_title","intro_subtitle","owner_title","owner_text","owner_tagline","store_name","address","line_url","facebook_url"];
 
-function preview(){
-  $("pvTitle").textContent=$("hero_title").value||"";
-  $("pvSub").textContent=$("hero_subtitle").value||"";
-  $("pvAddress").textContent=$("address").value||"";
-}
-ids.forEach(id=>$(id).addEventListener("input",preview));
-
 async function loginAdmin(){
-  loginError.textContent="";
-  statusEl.textContent="";
-  if(!emailEl.value || !passwordEl.value){
-    loginError.textContent="請輸入 Email 與密碼";
-    return;
-  }
-  const {error}=await client.auth.signInWithPassword({
-    email:emailEl.value.trim(),
-    password:passwordEl.value
-  });
-  if(error){
-    loginError.textContent="登入失敗："+error.message;
-    return;
-  }
-  await initEditor();
+  $("loginError").textContent="";
+  const email=$("email").value.trim(), password=$("password").value;
+  if(!email||!password){$("loginError").textContent="請輸入 Email 與密碼";return;}
+  const {error}=await client.auth.signInWithPassword({email,password});
+  if(error){$("loginError").textContent="登入失敗："+error.message;return;}
+  await init();
 }
-
-async function initEditor(){
-  const {data,error}=await client.auth.getSession();
-  if(error){
-    loginError.textContent="無法確認登入狀態："+error.message;
-    return;
-  }
-  if(!data.session){
-    loginPanel.style.display="block";
-    editorPanel.style.display="none";
-    logoutBtn.style.display="none";
-    return;
-  }
-
-  loginPanel.style.display="none";
-  editorPanel.style.display="block";
-  logoutBtn.style.display="inline-flex";
-
-  const result=await client.from("site_settings").select("*").limit(1).maybeSingle();
-  if(result.error){
-    statusEl.textContent="讀取失敗："+result.error.message;
-    return;
-  }
-  if(!result.data){
-    statusEl.textContent="找不到網站設定資料";
-    return;
-  }
-
-  ids.forEach(id=>$(id).value=result.data[id]??"");
-  preview();
+async function init(){
+  const {data}=await client.auth.getSession();
+  if(!data.session){$("login").style.display="block";$("editor").style.display="none";$("logoutBtn").style.display="none";return;}
+  $("login").style.display="none";$("editor").style.display="block";$("logoutBtn").style.display="inline-flex";
+  await Promise.all([loadSiteSettings(),loadDashboard()]);
 }
-
-async function save(){
-  statusEl.textContent="儲存中…";
-  const values={};
-  ids.forEach(id=>values[id]=$(id).value);
-  values.updated_at=new Date().toISOString();
-
+async function loadSiteSettings(){
+  const {data,error}=await client.from("site_settings").select("*").limit(1).maybeSingle();
+  if(error){$("saveStatus").textContent="讀取失敗："+error.message;return;}
+  if(!data){$("saveStatus").textContent="找不到網站設定資料";return;}
+  ids.forEach(id=>$(id).value=data[id]??"");
+}
+async function loadDashboard(){
+  const {data:activities,error}=await client.from("activities").select("*").order("created_at",{ascending:false});
+  if(error){$("activityBox").textContent="讀取活動失敗："+error.message;return;}
+  const all=activities||[], active=all.filter(a=>a.status==="active");
+  $("statActive").textContent=active.length;$("statTotal").textContent=all.length;
+  let available=0, participantCount=0;
+  for(const a of active){
+    const {count:av}=await client.from("activity_numbers").select("id",{count:"exact",head:true}).eq("activity_id",a.id).eq("status","available");
+    const {count:pc}=await client.from("participants").select("id",{count:"exact",head:true}).eq("activity_id",a.id);
+    available+=av||0;participantCount+=pc||0;
+  }
+  $("statAvailable").textContent=available;$("statParticipants").textContent=participantCount;
+  if(!active.length){$("activityBox").innerHTML='<div class="empty">目前沒有進行中的活動。<br>首頁可以自動顯示沒有活動的狀態。</div>';}
+  else{$("activityBox").innerHTML=active.map(a=>`<div class="activityName">${(a.title||a.name||"未命名活動").replace(/</g,"&lt;")}</div><div style="margin-top:8px"><span class="pill">進行中</span> <span class="pill">${a.prize||"未設定獎品"}</span></div><div class="muted" style="margin-top:10px">${a.description||"尚未填寫活動說明"}</div>`).join("<hr style='border:0;border-top:1px solid #2a3556;margin:18px 0'>");}
+  const {data:recent,error:pe}=await client.from("participants").select("id,activity_id,number,photo_url,created_at").order("created_at",{ascending:false}).limit(8);
+  if(pe){$("participantsBox").textContent="讀取參加紀錄失敗："+pe.message;return;}
+  if(!recent?.length){$("participantsBox").innerHTML='<div class="empty">目前還沒有參加紀錄。</div>';return;}
+  $("participantsBox").innerHTML=`<table class="table"><thead><tr><th>時間</th><th>號碼</th><th>活動 ID</th><th>照片</th></tr></thead><tbody>${recent.map(p=>`<tr><td>${new Date(p.created_at).toLocaleString("zh-TW",{hour12:false})}</td><td>${String(p.number).padStart(3,"0")}</td><td>${String(p.activity_id).slice(0,8)}…</td><td>${p.photo_url?'有':'無'}</td></tr>`).join("")}</tbody></table>`;
+}
+async function saveHomepage(){
+  $("saveStatus").textContent="儲存中…";
   const row=await client.from("site_settings").select("id").limit(1).maybeSingle();
-  if(row.error){
-    statusEl.textContent="讀取設定失敗："+row.error.message;
-    return;
-  }
-  if(!row.data){
-    statusEl.textContent="找不到 site_settings 資料列";
-    return;
-  }
-
-  const result=await client.from("site_settings").update(values).eq("id",row.data.id);
-  if(result.error){
-    statusEl.textContent="儲存失敗："+result.error.message;
-    return;
-  }
-  statusEl.textContent="✓ 已儲存到 Supabase";
+  if(row.error||!row.data){$("saveStatus").textContent="找不到 site_settings 資料列";return;}
+  const values={};ids.forEach(id=>values[id]=$(id).value);values.updated_at=new Date().toISOString();
+  const {error}=await client.from("site_settings").update(values).eq("id",row.data.id);
+  $("saveStatus").textContent=error?"儲存失敗："+error.message:"✓ 已儲存到 Supabase";
 }
-
-async function logoutAdmin(){
-  await client.auth.signOut();
-  location.reload();
-}
-
-window.addEventListener("load",initEditor);
-client.auth.onAuthStateChange((event)=>{
-  if(event==="SIGNED_OUT") location.reload();
-});
-</script>
-</body>
-</html>
+async function logoutAdmin(){await client.auth.signOut();location.reload();}
+client.auth.onAuthStateChange((event)=>{if(event==="SIGNED_OUT")location.reload();});
+window.addEventListener("load",init);
+</script></body></html>
