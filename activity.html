@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>貓六爪娃娃屋｜夾中選號抽獎</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#10152b;color:#fff;font-family:Arial,"Noto Sans TC",sans-serif}
+.wrap{max-width:1080px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;padding:12px 0 30px}
+.logo{font-size:24px;font-weight:900}.logo span{color:#31e7ff}nav a{color:#cfd4ef;text-decoration:none;margin-left:20px;font-size:14px}
+.hero{padding:45px 0 30px}.tag{color:#ff55c8;font-weight:800}h1{font-size:clamp(40px,7vw,72px);line-height:1;margin:12px 0}.hero p{color:#b9c0dc;font-size:17px}
+.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:20px}.card{background:#181f3b;border:1px solid #2c3560;border-radius:24px;padding:24px}.accent{border-color:#5d4ee8}
+.steps{display:flex;gap:8px;margin:18px 0}.step{flex:1;padding:10px;border-radius:12px;background:#252e52;text-align:center;font-size:13px}.step.on{background:#5d4ee8}
+.upload{border:2px dashed #48547f;border-radius:18px;padding:28px;text-align:center;color:#aeb6d7}.preview{max-width:100%;max-height:180px;border-radius:14px;margin-top:12px;display:none}
+.btn{border:0;border-radius:14px;padding:14px 18px;font-weight:900;cursor:pointer;background:#31e7ff;color:#10152b}.btn.pink{background:#ff55c8;color:#fff}.btn.dark{background:#293254;color:#fff}
+.status{display:flex;justify-content:space-between;color:#aeb6d7;font-size:14px}.remain{color:#31e7ff;font-weight:900}
+.numbers{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;margin-top:18px;max-height:520px;overflow:auto;padding:4px;padding-right:6px}
+.num{background:#273052;color:#fff;border:1px solid #39466e;border-radius:9px;padding:11px 3px;cursor:pointer;font-size:14px;font-weight:700;min-height:42px}
+.num.taken{background:#141a2e;color:#626b8e;border-color:#222a48;cursor:not-allowed}.num.selected{background:#ff55c8;color:#fff;border-color:#ff8ad9}
+.notice{padding:13px 15px;background:#202a4d;border-radius:12px;color:#b9c3e2;font-size:13px;margin-top:14px}
+.result{text-align:center;padding:25px}.big{font-size:56px;font-weight:900;color:#31e7ff}.hidden{display:none}.muted{color:#8993b9;font-size:13px}
+@media(max-width:760px){.wrap{padding:16px}.grid{grid-template-columns:1fr}nav{display:none}.numbers{grid-template-columns:repeat(8,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div class="logo">🐾 貓六爪<span>娃娃屋</span></div><nav><a href="#activity">夾中選號</a><a href="#about">關於貓六爪</a></nav></header>
+
+<section class="hero">
+<div class="tag">CAT SIX CLAWS · LIVE EVENT</div>
+<h1 id="heroTitle">夾中選號<br>抽獎</h1>
+<p id="heroDesc">正在讀取目前活動……</p>
+</section>
+
+<section id="activity" class="grid">
+<div class="card accent">
+<h2>🎁 <span id="activityTitle">夾中選號抽獎</span></h2>
+<div id="activityImageWrap" style="margin:12px 0 18px;display:none">
+  <img id="activityImage" alt="本期活動圖片" style="width:100%;max-height:320px;object-fit:cover;border-radius:18px;border:1px solid #39466e">
+</div>
+<div class="steps"><div class="step on" id="step1">① 上傳照片</div><div class="step" id="step2">② 選擇號碼</div><div class="step" id="step3">③ 完成</div></div>
+
+<div id="loading">正在連接貓六爪活動資料……</div>
+
+<div id="photoStep" class="hidden">
+<div class="upload">
+<strong>📸 上傳你的戰利品</strong><br><span>拍下夾中的獎品，確認後即可選號</span><br><br>
+<input id="photo" type="file" accept="image/*">
+<img id="preview" class="preview">
+</div>
+<button class="btn" style="margin-top:14px;width:100%" onclick="goNumbers()">下一步：選號</button>
+</div>
+
+<div id="numberStep" class="hidden">
+<div class="status"><span>選一個你喜歡的號碼</span><span>剩餘 <b class="remain" id="remaining">0</b> 個</span></div>
+<div class="numbers" id="numbers"></div>
+<div class="muted" style="margin-top:12px">請依序排列查看，選一個你喜歡的尚未被選走的號碼。灰色＝已被選走。</div>
+<button class="btn pink" style="margin-top:15px;width:100%" onclick="confirmNumber()">確認我的號碼</button>
+</div>
+
+<div id="doneStep" class="hidden result">
+<div style="font-size:42px">🎉</div><h2>恭喜你！</h2>
+<p>你選了</p><div class="big" id="chosen"></div><p>號</p>
+<p>🎟️ 目前還剩 <b class="remain" id="leftDone"></b> 個號碼</p>
+<p>📸 想跟大家分享你的戰利品嗎？</p>
+<button class="btn" onclick="shareLine()">分享到 LINE 玩家群</button>
+<br><button class="btn dark" style="margin-top:10px" onclick="location.reload()">回到活動頁</button>
+</div>
+<div id="errorBox" class="notice hidden"></div>
+</div>
+
+<div class="card">
+<h2>活動資訊</h2>
+<p><b>活動名稱</b><br><span id="infoTitle">—</span></p>
+<p><b>抽獎獎品</b><br><span id="infoPrize">—</span></p>
+<p><b>目前進度</b></p>
+<div style="font-size:30px;font-weight:900"><span id="takenCount">0</span> / <span id="totalCount">0</span></div>
+<p class="muted" id="infoDesc">—</p>
+</div>
+</section>
+
+<section id="about" class="card" style="margin-top:22px">
+<h2>🐱 貓六爪基地</h2>
+<p>我們提供場地與機台，也歡迎想成為台主的夥伴加入。</p>
+<p><b>想成為貓六爪的台主？</b><br>我們負責場地及機台，你負責人到場，手把手教學。</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn dark" onclick="shareLine()">LINE 玩家群</button><button class="btn dark">Facebook</button></div>
+</section>
+<footer style="padding:35px 0;color:#737eaa;text-align:center">貓六爪娃娃屋 · Claw Machine · Game · Community</footer>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://qxbagchxhmstznkorcgk.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_I7P-WhRTV2js0zbxf8Tfkg_rYjWf4oZ';
+let activity=null, numbers=[], selected=null, photoUrl=null;
+
+async function sb(path, options={}){
+  const res=await fetch(SUPABASE_URL + path, {
+    ...options,
+    headers:{
+      apikey:SUPABASE_KEY,
+      Authorization:'Bearer '+SUPABASE_KEY,
+      'Content-Type':'application/json',
+      ...(options.headers||{})
+    }
+  });
+  const text=await res.text();
+  let data; try{data=text?JSON.parse(text):null}catch{data=text}
+  if(!res.ok) throw new Error(data?.message || data?.hint || text || ('HTTP '+res.status));
+  return data;
+}
+
+async function loadActivity(){
+  try{
+    const acts=await sb('/rest/v1/activities?status=eq.active&template_type=eq.claw_lottery&select=*&order=created_at.desc&limit=1');
+    if(!acts.length) throw new Error('目前沒有開放中的「夾中選號抽獎」活動。');
+    activity=acts[0];
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('photoStep').classList.remove('hidden');
+    document.getElementById('activityTitle').textContent=activity.title;
+    document.getElementById('heroTitle').innerHTML=(activity.title||'夾中選號抽獎').replace('選號','選號<br>');
+    document.getElementById('heroDesc').textContent=activity.description||'夾中指定獎品即可參加。';
+    document.getElementById('infoTitle').textContent=activity.title;
+    document.getElementById('infoPrize').textContent=activity.prize||'本期抽獎獎品';
+    document.getElementById('infoDesc').textContent=activity.description||'';
+    if(activity.image_url){
+      document.getElementById('activityImage').src=activity.image_url;
+      document.getElementById('activityImageWrap').style.display='block';
+    }else{
+      document.getElementById('activityImageWrap').style.display='none';
+    }
+    await loadNumbers();
+  }catch(e){
+    document.getElementById('loading').textContent='⚠️ '+e.message;
+    document.getElementById('errorBox').textContent='如果你剛剛才建立活動，請確認 Supabase 的活動狀態是 active。';
+    document.getElementById('errorBox').classList.remove('hidden');
+  }
+}
+
+async function loadNumbers(){
+  numbers=await sb('/rest/v1/activity_numbers?activity_id=eq.'+activity.id+'&select=number,status&order=number.asc');
+  updateCounts();
+}
+
+function updateCounts(){
+  const taken=numbers.filter(x=>x.status==='taken').length;
+  const remain=numbers.length-taken;
+  document.getElementById('remaining').textContent=remain;
+  document.getElementById('leftDone').textContent=remain;
+  document.getElementById('takenCount').textContent=taken;
+  document.getElementById('totalCount').textContent=numbers.length;
+}
+
+function renderNumbers(){
+  const box=document.getElementById('numbers'); box.innerHTML='';
+  // 號碼固定依序排列：001、002、003……，不隨機打亂
+  const arr=[...numbers].sort((a,b)=>a.number-b.number);
+  arr.forEach(x=>{
+    const b=document.createElement('button');
+    b.className='num'+(x.status==='taken'?' taken':'');
+    b.textContent=String(x.number).padStart(3,'0');
+    b.disabled=x.status==='taken';
+    b.onclick=()=>{document.querySelectorAll('.num.selected').forEach(y=>y.classList.remove('selected'));b.classList.add('selected');selected=x.number};
+    box.appendChild(b);
+  });
+}
+
+document.getElementById('photo').addEventListener('change',e=>{
+  const f=e.target.files[0];
+  if(f){const img=document.getElementById('preview');img.src=URL.createObjectURL(f);img.style.display='block'}
+});
+
+function goNumbers(){
+  if(!document.getElementById('photo').files[0]){alert('請先上傳夾中獎品的照片');return}
+  document.getElementById('photoStep').classList.add('hidden');
+  document.getElementById('numberStep').classList.remove('hidden');
+  document.getElementById('step1').classList.remove('on');document.getElementById('step2').classList.add('on');
+  renderNumbers();
+}
+
+async function uploadPhoto(file){
+  const ext=(file.name.split('.').pop()||'jpg').replace(/[^a-zA-Z0-9]/g,'');
+  const filePath=activity.id+'/'+Date.now()+'_'+crypto.randomUUID()+'.'+(ext||'jpg');
+  const res=await fetch(SUPABASE_URL+'/storage/v1/object/claw-photos/'+filePath,{
+    method:'POST',
+    headers:{
+      apikey:SUPABASE_KEY,
+      Authorization:'Bearer '+SUPABASE_KEY,
+      'Content-Type':file.type||'image/jpeg',
+      'x-upsert':'false'
+    },
+    body:file
+  });
+  if(!res.ok){
+    const t=await res.text();
+    throw new Error('照片上傳失敗：'+t);
+  }
+  return SUPABASE_URL+'/storage/v1/object/public/claw-photos/'+filePath;
+}
+
+async function confirmNumber(){
+  if(!selected){alert('請選擇一個號碼');return}
+  const file=document.getElementById('photo').files[0];
+  if(!file){alert('請先上傳夾中獎品的照片');return}
+  const btn=document.querySelector('#numberStep .btn.pink');
+  btn.disabled=true;btn.textContent='正在上傳照片……';
+  try{
+    const photoUrl=await uploadPhoto(file);
+    btn.textContent='正在鎖定號碼……';
+    const result=await sb('/rest/v1/rpc/claim_number',{
+      method:'POST',
+      body:JSON.stringify({p_activity_id:activity.id,p_number:selected,p_photo_url:photoUrl})
+    });
+    if(!result.success){
+      alert(result.message||'選號失敗');
+      selected=null; await loadNumbers(); renderNumbers(); return;
+    }
+    await loadNumbers();
+    document.getElementById('chosen').textContent=String(result.number).padStart(3,'0');
+    document.getElementById('numberStep').classList.add('hidden');
+    document.getElementById('doneStep').classList.remove('hidden');
+    document.getElementById('step2').classList.remove('on');document.getElementById('step3').classList.add('on');
+  }catch(e){
+    alert('操作失敗：'+e.message);
+    await loadNumbers(); renderNumbers();
+  }finally{btn.disabled=false;btn.textContent='確認我的號碼'}
+}
+
+function shareLine(){
+  const text='🐾 貓六爪娃娃屋\n🎁 夾中選號抽獎\n🎟️ 我抽到 '+String(selected||'').padStart(3,'0')+' 號！';
+  const url='https://line.me/R/msg/text/?'+encodeURIComponent(text);
+  window.open(url,'_blank');
+}
+loadActivity();
+</script>
+</body>
+</html>
