@@ -53,6 +53,23 @@ input,textarea{width:100%;padding:13px;border-radius:10px;border:1px solid #3a47
 <div class="field"><label>Facebook 連結</label><input id="facebook_url" placeholder="之後填入"></div>
 </div></div>
 
+
+<div class="panel" id="battleSettings">
+<h2>⚔️ 戰鬥陀螺活動</h2>
+<div class="muted">管理戰鬥陀螺專區。開啟活動後，前台會顯示活動內容；關閉後顯示「活動籌備中，敬請期待」。</div>
+<div class="field"><label><input id="battle_active" type="checkbox" style="width:auto;margin-right:8px"> 開啟本期戰鬥陀螺活動</label></div>
+<div class="field"><label>活動名稱</label><input id="battle_title" placeholder="例如：貓六爪｜戰鬥陀螺交流賽"></div>
+<div class="grid">
+  <div class="field"><label>活動日期</label><input id="battle_date" type="date"></div>
+  <div class="field"><label>活動時間</label><input id="battle_time" placeholder="例如：14:00–17:00"></div>
+</div>
+<div class="field"><label>活動內容</label><textarea id="battle_content" placeholder="活動內容、地點、參加方式等"></textarea></div>
+<div class="field"><label>活動規則</label><textarea id="battle_rules" placeholder="比賽規則、注意事項等"></textarea></div>
+<div class="field"><label>活動圖片網址</label><input id="battle_image_url" placeholder="貼上圖片網址"></div>
+<div class="field"><label>報名／相關連結</label><input id="battle_registration_url" placeholder="沒有可留白"></div>
+<button class="btn" onclick="saveBattle()">💾 儲存戰鬥陀螺設定</button><span id="battleSaveStatus" class="status"></span>
+</div>
+
 <div class="panel">
 <button class="btn" onclick="save()">💾 儲存首頁設定</button><span id="status" class="status"></span>
 <div class="preview"><b>即時預覽</b><h3 id="pvTitle"></h3><p id="pvSub"></p><div class="address">📍 <span id="pvAddress"></span></div></div>
@@ -123,6 +140,10 @@ async function initEditor(){
   }
 
   ids.forEach(id=>$(id).value=result.data[id]??"");
+  if($("battle_active")) $("battle_active").checked=!!result.data.battle_active;
+  ["battle_title","battle_date","battle_time","battle_content","battle_rules","battle_image_url","battle_registration_url"].forEach(id=>{
+    if($(id)) $(id).value=result.data[id]??"";
+  });
   preview();
 }
 
