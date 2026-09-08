@@ -48,8 +48,9 @@ input,textarea{width:100%;padding:13px;border-radius:10px;border:1px solid #3a47
 <div class="field"><label>店家名稱</label><input id="store_name"></div>
 <div class="field"><label>店家地址</label><input id="address"></div>
 <div class="grid">
-<div class="field"><label>LINE 加好友連結</label><input id="line_url" placeholder="貼上 LINE 官方加好友網址，例如 https://lin.ee/xxxxxx"></div>
-<div class="field"><label>Facebook 連結</label><input id="facebook_url" placeholder="貼上 LINE 官方加好友網址，例如 https://lin.ee/xxxxxx"></div>
+<div class="field"><label>群組 LINE｜對應前台「找到貓六爪－玩家群」</label><input id="line_url" placeholder="貼上玩家群組連結"></div>
+<div class="field"><label>場主 LINE｜對應前台「了解合作方式」</label><input id="owner_line_url" placeholder="貼上場主／官方好友連結"></div>
+<div class="field"><label>Facebook 連結</label><input id="facebook_url" placeholder="之後填入"></div>
 </div></div>
 
 <div class="panel">
@@ -67,7 +68,7 @@ const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 const loginPanel=$("login"), editorPanel=$("editor"), loginError=$("loginError");
 const statusEl=$("status"), emailEl=$("email"), passwordEl=$("password"), logoutBtn=$("logoutBtn");
-const ids=["hero_title","hero_subtitle","intro_title","intro_subtitle","owner_title","owner_text","owner_tagline","store_name","address","line_url","line_friend_url","facebook_url"];
+const ids=["hero_title","hero_subtitle","intro_title","intro_subtitle","owner_title","owner_text","owner_tagline","store_name","address","line_url","owner_line_url","facebook_url"];
 
 function preview(){
   $("pvTitle").textContent=$("hero_title").value||"";
