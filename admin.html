@@ -150,6 +150,26 @@ async function save(){
   statusEl.textContent="✓ 已儲存到 Supabase";
 }
 
+
+async function saveBattle(){
+  $("battleSaveStatus").textContent="儲存中…";
+  const row=await client.from("site_settings").select("id").limit(1).maybeSingle();
+  if(row.error||!row.data){$("battleSaveStatus").textContent="找不到 site_settings 資料列";return;}
+  const values={
+    battle_active:$("battle_active").checked,
+    battle_title:$("battle_title").value.trim(),
+    battle_date:$("battle_date").value||null,
+    battle_time:$("battle_time").value.trim(),
+    battle_content:$("battle_content").value.trim(),
+    battle_rules:$("battle_rules").value.trim(),
+    battle_image_url:$("battle_image_url").value.trim(),
+    battle_registration_url:$("battle_registration_url").value.trim(),
+    updated_at:new Date().toISOString()
+  };
+  const {error}=await client.from("site_settings").update(values).eq("id",row.data.id);
+  $("battleSaveStatus").textContent=error?"儲存失敗："+error.message:"✓ 已儲存到 Supabase";
+}
+
 async function logoutAdmin(){
   await client.auth.signOut();
   location.reload();

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>貓六爪娃娃屋｜戰鬥陀螺專區</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#080d20;color:#fff;font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.7}
 a{text-decoration:none;color:inherit}.wrap{width:min(1080px,92%);margin:auto}
@@ -10,53 +11,104 @@ header{position:sticky;top:0;z-index:10;background:rgba(8,13,32,.92);backdrop-fi
 .nav{height:70px;display:flex;align-items:center;justify-content:space-between}.logo{font-size:19px;font-weight:900}.logo b{color:#5cecff}
 nav{display:flex;gap:24px;color:#b8c1dc;font-size:14px}nav a:hover{color:#5cecff}
 .hero{padding:82px 0 72px;text-align:center;background:radial-gradient(circle at 50% 20%,#6e2cff 0,transparent 30%),radial-gradient(circle at 75% 90%,#ff3fae 0,transparent 25%),#101a38}
-.kicker{font-size:13px;letter-spacing:3px;color:#5cecff;font-weight:900}.hero h1{font-size:clamp(45px,8vw,76px);line-height:1;margin:14px 0}.hero h1 span{color:#ff5cc8}.hero p{color:#c5cbe0;font-size:18px;max-width:650px;margin:20px auto}
-.btn{display:inline-flex;padding:13px 21px;border-radius:11px;font-weight:900;border:1px solid #3b4871;margin:8px}.primary{background:linear-gradient(135deg,#7447ff,#ff4fbe);border:0}
+.kicker{font-size:13px;letter-spacing:3px;color:#5cecff;font-weight:900}.hero h1{font-size:clamp(45px,8vw,76px);line-height:1;margin:14px 0}.hero h1 span{color:#ff5cc8}
+.hero p{color:#c5cbe0;font-size:18px;max-width:650px;margin:20px auto}.btn{display:inline-flex;padding:13px 21px;border-radius:11px;font-weight:900;border:1px solid #3b4871;margin:8px}.primary{background:linear-gradient(135deg,#7447ff,#ff4fbe);border:0}
 section{padding:65px 0}.title{font-size:31px;margin:0 0 7px}.lead{color:#929dbd;margin-top:0}
-.feature{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{padding:30px;border:1px solid #354064;border-radius:22px;background:#111936}.icon{font-size:42px}.card h3{font-size:23px;margin:9px 0}.card p{color:#a2acc8;margin:0}
-.event{border:1px solid #39466d;border-radius:24px;padding:32px;background:linear-gradient(135deg,#171e3b,#10162d)}.event h2{font-size:28px;margin:0 0 7px}.event p{color:#aeb7d1}.badge{display:inline-block;padding:5px 10px;border-radius:99px;background:#1b2b52;color:#5cecff;font-size:11px;font-weight:900}
-.cta{text-align:center;border:1px solid #5a3d7a;border-radius:24px;padding:45px 25px;background:linear-gradient(135deg,#241354,#32134d)}.cta h2{font-size:31px;margin:0 0 8px}.cta p{color:#c0c6da}
+.event{border:1px solid #39466d;border-radius:24px;padding:32px;background:linear-gradient(135deg,#171e3b,#10162d);overflow:hidden}
+.eventImg{width:100%;max-height:420px;object-fit:cover;border-radius:16px;margin-bottom:22px;display:none}
+.event h2{font-size:31px;margin:0 0 8px}.event p{color:#aeb7d1;white-space:pre-wrap}.badge{display:inline-block;padding:5px 10px;border-radius:99px;background:#1b2b52;color:#5cecff;font-size:11px;font-weight:900;margin-bottom:12px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 18px}.meta span{background:#151f42;border:1px solid #34436d;border-radius:999px;padding:7px 11px;color:#c6cee3;font-size:13px}
+.empty{text-align:center;border:1px dashed #415077;border-radius:24px;padding:70px 30px;background:#10162d}.empty .symbol{font-size:56px}.empty h2{font-size:30px;margin:10px 0}.empty p{color:#9fa9c5}
+.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.info{padding:26px;border:1px solid #354064;border-radius:20px;background:#111936}.info h3{margin:0 0 8px}.info p{margin:0;color:#a2acc8;white-space:pre-wrap}
 footer{border-top:1px solid #29345a;padding:28px 0;color:#7682a7;font-size:13px}
-@media(max-width:700px){nav{display:none}.feature{grid-template-columns:1fr}.hero{padding:62px 0 55px}}
+@media(max-width:700px){nav{display:none}.infoGrid{grid-template-columns:1fr}.hero{padding:62px 0 55px}}
 </style>
 </head>
 <body>
 <header><div class="wrap nav">
 <a class="logo" href="index.html"><b>🐾</b> 貓六爪娃娃屋</a>
-<nav><a href="index.html">首頁</a><a href="#events">活動</a><a href="#about">關於陀螺</a></nav>
+<nav><a href="index.html">首頁</a><a href="activity.html">娃娃機活動</a><a href="#event">本期活動</a></nav>
 </div></header>
 
 <section class="hero"><div class="wrap">
 <div class="kicker">BEYBLADE · BATTLE AREA</div>
 <h1>⚔️ <span>戰鬥陀螺</span></h1>
-<p>貓六爪的另一個戰場。玩家集結、正面對決，讓喜歡陀螺的人有一個可以一起玩的地方。</p>
-<a class="btn primary" href="#events">查看近期活動 →</a>
+<p>貓六爪的獨立陀螺對戰區。活動、賽事與交流，和娃娃機活動分開進行。</p>
+<a class="btn primary" href="#event">查看活動 →</a>
 </div></section>
 
-<section id="events"><div class="wrap">
-<h2 class="title">近期活動</h2><p class="lead">之後這裡可以由後台新增與管理比賽、交流賽及其他陀螺活動。</p>
-<div class="event">
-<span class="badge">活動專區</span>
-<h2>⚔️ 戰鬥陀螺活動</h2>
-<p>目前尚未公布下一場活動。活動開始後，這裡可以放上活動時間、規則、獎品與報名方式。</p>
-<a class="btn primary" href="#" onclick="alert('正式上線後接戰鬥陀螺報名頁');return false">活動報名 →</a>
+<section id="event"><div class="wrap">
+<h2 class="title">本期活動</h2><p class="lead" id="sectionLead">載入中…</p>
+
+<div id="eventBox" class="empty">
+<div class="symbol">⚔️</div><h2>活動籌備中，敬請期待</h2><p>下一場戰鬥陀螺活動公布後，會在這裡更新。</p>
+</div>
+
+<div id="activeBox" class="event" style="display:none">
+<span class="badge">CURRENT EVENT</span>
+<img id="eventImg" class="eventImg" alt="戰鬥陀螺活動圖片">
+<h2 id="eventTitle"></h2>
+<div class="meta"><span id="eventDate">📅</span><span id="eventTime">⏰</span></div>
+<p id="eventContent"></p>
+<div id="eventRulesWrap" class="info" style="margin-top:20px;display:none"><h3>活動規則</h3><p id="eventRules"></p></div>
+<div id="eventCta"></div>
 </div>
 </div></section>
 
-<section id="about"><div class="wrap">
-<h2 class="title">為喜歡對戰的人，留一個戰場</h2><p class="lead">先把活動資訊集中起來，之後再逐步增加賽事功能。</p>
-<div class="feature">
-<div class="card"><div class="icon">⚔️</div><h3>對戰活動</h3><p>可以舉辦交流賽、公開賽與主題賽事，讓玩家一起切磋。</p></div>
-<div class="card"><div class="icon">🏆</div><h3>賽事資訊</h3><p>未來可加入報名、賽程、對戰結果與排名等功能。</p></div>
-<div class="card"><div class="icon">👥</div><h3>玩家集結</h3><p>活動資訊與玩家交流可以集中在貓六爪的社群。</p></div>
-<div class="card"><div class="icon">🎁</div><h3>活動獎品</h3><p>每場活動可以介紹獎品與參加方式，讓玩家一眼掌握重點。</p></div>
-</div></div></section>
-
-<section><div class="wrap"><div class="cta">
-<h2>下一場，來貓六爪對戰。</h2>
-<p>活動資訊公布後，就來一起轉出屬於你的勝利。</p>
-<a class="btn primary" href="index.html">← 回到貓六爪首頁</a>
-</div></div></section>
+<section><div class="wrap">
+<div class="infoGrid">
+<div class="info"><h3>⚔️ 對戰活動</h3><p>交流賽、公開賽、主題賽，都可以在這個專區集中發布。</p></div>
+<div class="info"><h3>🏆 賽事資訊</h3><p>未來可以再擴充報名、賽程、對戰結果與排名。</p></div>
+</div>
+</div></section>
 
 <footer><div class="wrap">© 貓六爪娃娃屋 · 新北市板橋區長安街331巷46號1樓</div></footer>
+
+<script>
+const SUPABASE_URL="https://qxbagchxhmstznkorcgk.supabase.co";
+const SUPABASE_KEY="sb_publishable_I7P-WhRTV2js0zbxf8Tfkg_rYjWf4oZ";
+const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+function fmtDate(v){
+  if(!v) return "📅 日期待公布";
+  const d=new Date(v+"T00:00:00");
+  if(Number.isNaN(d.getTime())) return "📅 "+v;
+  return "📅 "+d.toLocaleDateString("zh-TW",{year:"numeric",month:"numeric",day:"numeric",weekday:"short"});
+}
+
+async function loadBattle(){
+  const {data,error}=await client.from("site_settings")
+    .select("battle_active,battle_title,battle_date,battle_time,battle_content,battle_rules,battle_image_url,battle_registration_url")
+    .limit(1).maybeSingle();
+
+  if(error){ document.getElementById("sectionLead").textContent="活動資料讀取失敗"; return; }
+  if(!data || !data.battle_active){
+    document.getElementById("sectionLead").textContent="目前沒有開放中的戰鬥陀螺活動";
+    return;
+  }
+
+  document.getElementById("eventBox").style.display="none";
+  document.getElementById("activeBox").style.display="block";
+  document.getElementById("sectionLead").textContent="目前開放中的戰鬥陀螺活動";
+  document.getElementById("eventTitle").textContent=data.battle_title || "戰鬥陀螺活動";
+  document.getElementById("eventDate").textContent=fmtDate(data.battle_date);
+  document.getElementById("eventTime").textContent=data.battle_time ? "⏰ "+data.battle_time : "⏰ 時間待公布";
+  document.getElementById("eventContent").textContent=data.battle_content || "活動內容待補充。";
+
+  if(data.battle_rules){
+    document.getElementById("eventRulesWrap").style.display="block";
+    document.getElementById("eventRules").textContent=data.battle_rules;
+  }
+
+  if(data.battle_image_url){
+    const img=document.getElementById("eventImg");
+    img.src=data.battle_image_url; img.style.display="block";
+  }
+
+  if(data.battle_registration_url){
+    document.getElementById("eventCta").innerHTML='<a class="btn primary" target="_blank" rel="noopener" href="'+data.battle_registration_url+'">活動報名 →</a>';
+  }
+}
+loadBattle();
+</script>
 </body></html>
