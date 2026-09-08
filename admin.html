@@ -67,7 +67,7 @@ const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 const loginPanel=$("login"), editorPanel=$("editor"), loginError=$("loginError");
 const statusEl=$("status"), emailEl=$("email"), passwordEl=$("password"), logoutBtn=$("logoutBtn");
-const ids=["hero_title","hero_subtitle","intro_title","intro_subtitle","owner_title","owner_text","owner_tagline","store_name","address","line_url","facebook_url"];
+const ids=["hero_title","hero_subtitle","intro_title","intro_subtitle","owner_title","owner_text","owner_tagline","store_name","address","line_url","line_friend_url","facebook_url"];
 
 function preview(){
   $("pvTitle").textContent=$("hero_title").value||"";
