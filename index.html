@@ -39,18 +39,18 @@ footer{border-top:1px solid #29345a;padding:28px 0;color:#7682a7;font-size:13px}
 <section id="activity"><div class="wrap"><div class="section-title"><h2>現在正在玩什麼？</h2><p>目前開放中的貓六爪活動</p></div>
 <div class="activity"><div class="activity-visual">🎁<br>🎟️</div><div class="activity-info"><span class="tag">CURRENT ACTIVITY</span><h3 id="activityTitle">夾中選號抽獎</h3>
 <p id="activityDesc">夾到指定資格獎品後，掃描 QR Code 上傳照片、選擇你的幸運號碼。</p><div class="stats"><div><strong id="activityRange">001–200</strong><small>號碼範圍</small></div><div><strong id="activityRemaining">即時</strong><small>目前可選</small></div></div>
-<a class="btn primary" id="activityLink" href="activity.html">立即選號 →</a></div></div></div></section>
+<a class="btn primary" id="activityLink" href="貓六爪_夾中選號抽獎_真連線前台_v4_活動圖片顯示版.html">立即選號 →</a></div></div></div></section>
 <section><div class="wrap"><div class="section-title"><h2 id="introTitle">貓六爪，不只是夾娃娃</h2><p id="introSubtitle">讓每一次進店，都有新的挑戰。</p></div>
 <div class="cards"><div class="card"><div class="icon">🎯</div><h3>活動一直玩</h3><p>不同主題活動，讓每一次來店都有新的玩法。</p></div>
 <div class="card"><div class="icon">🐾</div><h3>玩家一起玩</h3><p>加入玩家群，分享戰利品、交流玩法。</p></div>
 <div class="card" id="battle"><div class="icon">⚔️</div><h3>戰鬥陀螺</h3><p>獨立的陀螺對戰區，活動與賽事另外集結。</p></div></div></div></section>
 <section id="owner"><div class="wrap"><div class="recruit"><div><div class="kicker">FOR MACHINE OWNERS</div><h2 id="ownerTitle">想成為貓六爪的台主？</h2>
-<p id="ownerText">我們負責場地及機台，你負責人到場，手把手教學。<br><b id="ownerTagline">場地我們準備，經營一起學。</b></p></div><a class="btn primary" href="#info">了解合作方式 →</a></div></div></section>
+<p id="ownerText">我們負責場地及機台，你負責人到場，手把手教學。<br><b id="ownerTagline">場地我們準備，經營一起學。</b></p></div><a id="ownerLineBtn" class="btn primary" href="#" target="_blank" rel="noopener">了解合作方式 →</a></div></div></section>
 <section id="info"><div class="wrap"><div class="section-title"><h2>找到貓六爪</h2><p>最新消息與玩家交流，從這裡加入。</p></div>
-<div class="social"><a id="lineLink" href="#"><b>💬 LINE 玩家群</b><span>分享戰利品、活動消息、玩家交流</span></a>
-<a id="facebookLink" href="#"><b>📣 Facebook</b><span>最新活動、公告與店家消息</span></a></div>
+<div class="social"><a id="lineSocialBtn" href="#" target="_blank" rel="noopener"><b>💬 LINE</b><span>聯絡貓六爪、活動消息與玩家交流</span></a>
+<a href="#" onclick="alert('正式上線前再填入 Facebook 連結');return false"><b>📣 Facebook</b><span>最新活動、公告與店家消息</span></a></div>
 <div class="address">📍 <strong>店家地址</strong><br><span id="storeAddress">新北市板橋區長安街331巷46號1樓</span></div></div></section>
-<footer><div class="wrap">© 貓六爪娃娃屋 · 今天，夾什麼？<div style="margin-top:10px"><a href="admin.html" style="color:#66739a;text-decoration:none;font-size:12px">管理員登入</a></div></div></footer>
+<footer><div class="wrap">© 貓六爪娃娃屋 · 今天，夾什麼？</div></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -93,8 +93,16 @@ async function loadSiteSettings(){
     setText('ownerText',data.owner_text);
     setText('ownerTagline',data.owner_tagline);
     setText('storeAddress',data.address);
-    const line=document.getElementById('lineLink'); if(line && data.line_url){ line.href=data.line_url; line.target='_blank'; line.rel='noopener'; }
-    const fb=document.getElementById('facebookLink'); if(fb && data.facebook_url){ fb.href=data.facebook_url; fb.target='_blank'; fb.rel='noopener'; }
+    const lineUrl=(data.line_url||'').trim();
+    const ownerLineBtn=document.getElementById('ownerLineBtn');
+    const lineSocialBtn=document.getElementById('lineSocialBtn');
+    if(lineUrl){
+      if(ownerLineBtn){ownerLineBtn.href=lineUrl;ownerLineBtn.onclick=null;}
+      if(lineSocialBtn){lineSocialBtn.href=lineUrl;lineSocialBtn.onclick=null;}
+    }else{
+      if(ownerLineBtn){ownerLineBtn.href='#';ownerLineBtn.onclick=(e)=>{e.preventDefault();alert('目前尚未設定 LINE 加好友連結');};}
+      if(lineSocialBtn){lineSocialBtn.href='#';lineSocialBtn.onclick=(e)=>{e.preventDefault();alert('目前尚未設定 LINE 加好友連結');};}
+    }
     if(data.store_name){ document.title = data.store_name + '｜' + (data.hero_title || '今天，夾什麼？'); }
   } catch(e) { console.log('網站設定載入失敗，使用預設內容'); }
 }
