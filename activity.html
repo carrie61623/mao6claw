@@ -227,15 +227,34 @@ async function confirmNumber(){
 
 async function shareLine(){
   try{
-    const settings=await sb('/rest/v1/site_settings?select=line_url&limit=1');
-    const groupUrl=settings?.[0]?.line_url ? String(settings[0].line_url).trim() : '';
+    const settings=await sb('/rest/v1/site_settings?select=line_url,line_share_template&limit=1');
+    const row=settings?.[0]||{};
+    const groupUrl=row.line_url ? String(row.line_url).trim() : '';
+    let tpl=row.line_share_template ? String(row.line_share_template) : '🎉 我剛剛在貓六爪選了 {號碼} 號！\n🎟️ 現在還剩 {剩餘} 個號碼\n🔥 大家快跟上！';
+    const chosenNo=String(selected || document.getElementById('chosen')?.textContent || '').padStart(3,'0');
+    const remaining=String(document.getElementById('leftDone')?.textContent || document.getElementById('remaining')?.textContent || '0');
+    const message=tpl
+      .replaceAll('{號碼}',chosenNo)
+      .replaceAll('{剩餘}',remaining)
+      .replaceAll('{活動名稱}', activity?.title || '夾中選號抽獎');
+
     if(!groupUrl){
-      alert('目前還沒有設定玩家群組 LINE，請聯絡管理員。');
+      const shareUrl='https://line.me/R/share?text='+encodeURIComponent(message);
+      window.open(shareUrl,'_blank','noopener');
       return;
+    }
+
+    // LINE 官方支援「帶入預設文字的分享畫面」，但無法用一般網站 URL 指定某一個群組。
+    // 為了保留「一定進玩家群」的需求，先把訊息複製到剪貼簿，再開玩家群。
+    try{
+      await navigator.clipboard.writeText(message);
+      alert('分享訊息已複製！\n接下來會開啟「貓六爪－玩家群」，直接貼上即可。');
+    }catch(e){
+      alert('接下來會開啟「貓六爪－玩家群」。\n請手動複製這段訊息：\n\n'+message);
     }
     window.open(groupUrl,'_blank','noopener');
   }catch(e){
-    alert('無法取得玩家群組 LINE 連結，請稍後再試。');
+    alert('無法準備 LINE 分享訊息，請稍後再試。');
   }
 }
 loadActivity();

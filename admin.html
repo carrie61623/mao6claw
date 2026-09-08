@@ -86,7 +86,8 @@ input,textarea,select{background:#0e1429;border:1px solid #39466e;color:#fff;bor
 <div class="field"><label>台主招募標題</label><input id="owner_title"></div><div class="field"><label>台主招募標語</label><input id="owner_tagline"></div>
 <div class="field full"><label>台主招募內容</label><textarea id="owner_text"></textarea></div>
 <div class="field"><label>店家名稱</label><input id="store_name"></div><div class="field"><label>店家地址</label><input id="address"></div>
-<div class="field"><label>群組 LINE｜前台「找到貓六爪－玩家群」</label><input id="line_url"></div><div class="field"><label>場主 LINE｜前台「了解合作方式」</label><input id="owner_line_url"></div>
+<div class="field"><label>群組 LINE｜前台「找到貓六爪－玩家群」</label><input id="line_url"></div>
+<div class="field full"><label>玩家群分享訊息模板</label><textarea id="line_share_template" placeholder="可使用：{號碼}、{剩餘}、{活動名稱}"></textarea><div class="muted">例如：🎉 我剛剛在貓六爪選了 {號碼} 號！\n🎟️ 現在還剩 {剩餘} 個號碼\n🔥 大家快跟上！</div></div><div class="field"><label>場主 LINE｜前台「了解合作方式」</label><input id="owner_line_url"></div>
 <div class="field"><label>Facebook 連結</label><input id="facebook_url"></div>
 </div><div class="actions"><button class="btn pink" onclick="saveSettings()">💾 儲存網站資訊</button><span id="settingsMsg" class="status"></span></div>
 <div class="preview"><b>即時預覽</b><h3 id="pvTitle"></h3><p id="pvSub"></p><div class="muted">📍 <span id="pvAddress"></span></div></div>
@@ -112,7 +113,7 @@ const SUPABASE_KEY="sb_publishable_I7P-WhRTV2js0zbxf8Tfkg_rYjWf4oZ";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let token=localStorage.getItem("mao6claw_access_token")||"", currentId=null, numberPanelActivityId=null;
 const $=id=>document.getElementById(id);
-const siteIds=["hero_title","hero_subtitle","intro_title","intro_subtitle","owner_title","owner_text","owner_tagline","store_name","address","line_url","owner_line_url","facebook_url"];
+const siteIds=["hero_title","hero_subtitle","intro_title","intro_subtitle","owner_title","owner_text","owner_tagline","store_name","address","line_url","owner_line_url","facebook_url","line_share_template"];
 
 async function rest(path,options={}){
   const headers={apikey:SUPABASE_KEY,Authorization:"Bearer "+token,"Content-Type":"application/json",...(options.headers||{})};
