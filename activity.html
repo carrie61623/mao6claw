@@ -225,10 +225,18 @@ async function confirmNumber(){
   }finally{btn.disabled=false;btn.textContent='確認我的號碼'}
 }
 
-function shareLine(){
-  const text='🐾 貓六爪娃娃屋\n🎁 夾中選號抽獎\n🎟️ 我抽到 '+String(selected||'').padStart(3,'0')+' 號！';
-  const url='https://line.me/R/msg/text/?'+encodeURIComponent(text);
-  window.open(url,'_blank');
+async function shareLine(){
+  try{
+    const settings=await sb('/rest/v1/site_settings?select=line_url&limit=1');
+    const groupUrl=settings?.[0]?.line_url ? String(settings[0].line_url).trim() : '';
+    if(!groupUrl){
+      alert('目前還沒有設定玩家群組 LINE，請聯絡管理員。');
+      return;
+    }
+    window.open(groupUrl,'_blank','noopener');
+  }catch(e){
+    alert('無法取得玩家群組 LINE 連結，請稍後再試。');
+  }
 }
 loadActivity();
 </script>

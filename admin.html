@@ -1,205 +1,219 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>貓六爪｜管理後台・首頁內容設定</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>貓六爪｜管理中心</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0b1024;color:#f5f7ff;font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif}
-.wrap{width:min(900px,92%);margin:auto}.top{padding:28px 0;border-bottom:1px solid #2b365a}
-h1{margin:0;font-size:28px}.sub{color:#929dbd;margin-top:6px}.panel{margin:24px 0;padding:26px;border:1px solid #354064;border-radius:20px;background:#121936}
-h2{margin-top:0;font-size:21px}.field{margin:18px 0}.field label{display:block;font-weight:800;margin-bottom:7px}
-input,textarea{width:100%;padding:13px;border-radius:10px;border:1px solid #3a476d;background:#0d1430;color:#fff;font-size:15px;font-family:inherit}textarea{min-height:100px;resize:vertical}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.btn{padding:13px 20px;border:0;border-radius:10px;background:linear-gradient(135deg,#7447ff,#ff4fbe);color:#fff;font-weight:900;cursor:pointer}
-.btn.secondary{background:#1a2343;border:1px solid #3a476d}.status{margin-left:12px;color:#63e7ff}
-#editor{display:none}.login{max-width:460px;margin:70px auto}.error{color:#ff78bf;margin-top:10px;white-space:pre-wrap}.preview{margin-top:22px;padding:20px;border-radius:16px;background:#171e3b}.preview h3{font-size:30px;margin:8px 0}.preview p{color:#aeb7d1}.address{color:#cbd3e7}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px}.small{font-size:12px;color:#7e89aa}
-@media(max-width:650px){.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}}
+*{box-sizing:border-box}body{margin:0;background:#0d1226;color:#fff;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif}
+.wrap{max-width:1180px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}
+.logo{font-size:24px;font-weight:900}.logo b{color:#31e7ff}.pill{font-size:12px;background:#202a4d;padding:8px 12px;border-radius:99px;color:#b9c3e2}
+.card{background:#171e38;border:1px solid #2b355c;border-radius:20px;padding:20px;margin-bottom:18px}
+h1,h2,h3{margin-top:0}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat{background:#11172e;border-radius:15px;padding:18px}.stat small{color:#8993b7}.stat strong{display:block;font-size:30px;margin-top:6px}
+.cyan{color:#31e7ff}.pink{color:#ff75d2}.muted{color:#8f99ba;font-size:13px}.btn{border:0;border-radius:11px;padding:11px 15px;font-weight:900;cursor:pointer;background:#31e7ff;color:#0d1226}.btn.pink{background:#ff55c8;color:#fff}.btn.dark{background:#293253;color:#fff}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}label{font-size:13px;color:#aeb6d7}
+input,textarea,select{background:#0e1429;border:1px solid #39466e;color:#fff;border-radius:10px;padding:11px;font:inherit}textarea{min-height:90px;resize:vertical}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.activity{border-top:1px solid #293252;padding:16px 0;display:flex;justify-content:space-between;gap:15px;align-items:center}.activity:first-child{border-top:0}
+.badge{font-size:12px;padding:6px 9px;border-radius:99px;background:#1d6b5c}.badge.off{background:#4b3049;color:#ff9bdc}.notice{background:#202a4d;border-radius:12px;padding:12px;color:#b9c3e2;font-size:13px}
+.hidden{display:none}.tableWrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:700px}.table th,.table td{padding:11px 10px;border-bottom:1px solid #293252;text-align:left;font-size:13px}.table th{color:#8f99ba}
+.photoThumb{width:58px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #39466e;background:#0e1429}.empty{padding:22px;text-align:center;color:#8993b7;background:#11172e;border-radius:12px}
+.preview{margin-top:18px;padding:20px;border-radius:16px;background:#11172e}.preview h3{font-size:30px;margin:8px 0}.preview p{color:#aeb7d1}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tab{background:#1b2443;color:#b9c3e2;border:1px solid #344166;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}.tab.active{background:#7447ff;color:#fff;border-color:#8c69ff}
+@media(max-width:800px){.grid4{grid-template-columns:1fr 1fr}.grid2,.form{grid-template-columns:1fr}.field.full{grid-column:auto}.activity{align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){.wrap{padding:14px}.grid4{grid-template-columns:1fr 1fr}}
 </style>
 </head>
-<body>
-<div class="wrap">
-<div class="top"><div class="topbar"><div><h1>⚙️ 貓六爪網站設定</h1><div class="sub">首頁文字與基本資訊｜真連線版</div></div><button id="logoutBtn" class="btn secondary" style="display:none" onclick="logoutAdmin()">登出</button></div></div>
+<body><div class="wrap">
 
-<div id="login" class="panel login">
-<h2>🔐 管理員登入</h2>
-<div class="field"><label>Email</label><input id="email" type="email" placeholder="管理員 Email"></div>
-<div class="field"><label>密碼</label><input id="password" type="password" placeholder="密碼"></div>
-<button class="btn" onclick="loginAdmin()">登入</button>
-<div id="loginError" class="error"></div>
+<header class="top"><div><div class="logo">🐾 貓六爪<b>娃娃屋</b> ／ 管理中心</div><div class="muted">活動營運、玩家紀錄、首頁與戰鬥陀螺集中管理</div></div><div style="display:flex;gap:10px;align-items:center"><div id="userPill" class="pill">尚未登入</div><button id="logout" class="btn dark hidden" onclick="logout()">登出</button></div></header>
+
+<section id="login" class="card">
+<h2>🔐 管理員登入</h2><div class="notice">登入後可管理活動、查看參加狀況與修改網站資訊。</div>
+<div class="form" style="margin-top:15px"><div class="field"><label>Email</label><input id="email" type="email"></div><div class="field"><label>密碼</label><input id="password" type="password"></div></div>
+<div class="actions"><button class="btn pink" onclick="login()">登入管理中心</button></div><div id="loginMsg" class="muted" style="margin-top:10px"></div>
+</section>
+
+<section id="app" class="hidden">
+<div class="tabs">
+<button class="tab active" onclick="showTab('dashboard',this)">📊 系統總覽</button>
+<button class="tab" onclick="showTab('activities',this)">🎯 娃娃機活動</button>
+<button class="tab" onclick="showTab('settings',this)">🏠 網站資訊</button>
+<button class="tab" onclick="showTab('battle',this)">⚔️ 戰鬥陀螺</button>
 </div>
 
-<div id="editor">
-<div class="panel"><h2>🏠 首頁主視覺</h2>
-<div class="field"><label>主標題</label><input id="hero_title"></div>
-<div class="field"><label>副標題</label><textarea id="hero_subtitle"></textarea></div></div>
+<div id="dashboard" class="tabpage">
+<div class="grid4">
+<div class="stat"><small>活動總數</small><strong id="totalActivities">0</strong></div>
+<div class="stat"><small>進行中活動</small><strong class="cyan" id="activeActivities">0</strong></div>
+<div class="stat"><small>目前已選</small><strong class="pink" id="taken">0</strong></div>
+<div class="stat"><small>目前剩餘</small><strong id="remain">0</strong></div>
+</div>
+<div class="card" style="margin-top:18px"><h2>📌 目前活動</h2><div id="currentSummary" class="empty">讀取中…</div></div>
+<div class="card"><h2>🕘 最近參加紀錄</h2><div id="recentBox" class="empty">讀取中…</div></div>
+</div>
 
-<div class="panel"><h2>🎯 首頁介紹</h2><div class="grid">
-<div class="field"><label>區塊標題</label><input id="intro_title"></div>
-<div class="field"><label>區塊副標</label><input id="intro_subtitle"></div></div></div>
+<div id="activities" class="tabpage hidden">
+<div class="card"><div class="notice" style="margin-bottom:12px">「目前已選／目前剩餘」只計算目前進行中的最新夾中選號活動；歷史活動資料會保留。</div>
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><h2>🎁 娃娃機活動管理</h2><button class="btn pink" onclick="newActivity()">＋ 新增活動</button></div>
+<div id="activityList" style="margin-top:8px"></div></div>
 
-<div class="panel"><h2>🏪 台主招募</h2>
-<div class="field"><label>招募標題</label><input id="owner_title"></div>
-<div class="field"><label>招募內容</label><textarea id="owner_text"></textarea></div>
-<div class="field"><label>招募標語</label><input id="owner_tagline"></div></div>
+<section id="numberPanel" class="card hidden"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><h2>🎟️ 號碼管理</h2><div class="muted">點已選號碼可查看參加紀錄與玩家照片。</div></div><button class="btn dark" onclick="loadNumberPanel()">重新整理</button></div>
+<div id="numberSummary" class="notice" style="margin-top:14px"></div><div id="numberGrid" style="display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:7px;margin-top:14px"></div>
+<div id="numberDetail" class="card hidden" style="margin-top:16px;background:#11172e"><h3>號碼詳細資料</h3><div id="numberDetailContent"></div></div></section>
 
-<div class="panel"><h2>📍 店家資訊</h2>
-<div class="field"><label>店家名稱</label><input id="store_name"></div>
-<div class="field"><label>店家地址</label><input id="address"></div>
-<div class="grid">
-<div class="field"><label>群組 LINE｜對應前台「找到貓六爪－玩家群」</label><input id="line_url" placeholder="貼上玩家群組連結"></div>
-<div class="field"><label>場主 LINE｜對應前台「了解合作方式」</label><input id="owner_line_url" placeholder="貼上場主／官方好友連結"></div>
-<div class="field"><label>Facebook 連結</label><input id="facebook_url" placeholder="之後填入"></div>
+<section id="participantsPanel" class="card hidden"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><h2>👥 參加紀錄</h2><div class="muted">查看這場活動的全部選號與戰利品照片。</div></div><button class="btn dark" onclick="loadParticipants()">重新整理</button></div><div id="participantBox" style="margin-top:14px"></div></section>
+
+<section id="editor" class="card hidden"><h2 id="editorTitle">新增活動</h2><div class="form">
+<div class="field"><label>活動模板</label><select id="template"><option value="claw_lottery">🎁 夾中選號抽獎</option></select></div>
+<div class="field"><label>活動狀態</label><select id="activityStatus"><option value="draft">草稿</option><option value="active">進行中</option><option value="ended">已結束</option></select></div>
+<div class="field"><label>活動名稱</label><input id="title" value="夾中選號抽獎"></div>
+<div class="field"><label>號碼數量</label><select id="count"><option value="200">200</option><option value="250">250</option><option value="custom">自訂</option></select></div>
+<div class="field" id="customField" style="display:none"><label>自訂號碼數量</label><input id="custom" type="number" min="1" max="999"></div>
+<div class="field"><label>抽獎獎品</label><input id="prize" value="本期抽獎獎品"></div>
+<div class="field full"><label>活動／獎品圖片</label><input id="activityImage" type="file" accept="image/*"><div id="imagePreview" class="notice">尚未選擇圖片</div></div>
+<div class="field full"><label>活動說明</label><textarea id="description">夾中指定獎品即可選號 1 次。選一個喜歡的號碼，全部號碼選完後進行抽獎。</textarea></div>
+<div class="field full"><label>活動規則</label><textarea id="rules">1. 夾中指定獎品即可參加。
+2. 每次可選 1 個號碼。
+3. 號碼選定後無法更換。
+4. 全部號碼選完後進行開獎。</textarea></div>
+</div><div class="actions"><button class="btn" onclick="saveActivity()">💾 儲存活動</button><button class="btn dark" onclick="closeEditor()">取消</button></div><div id="saveMsg" class="muted" style="margin-top:10px"></div></section>
+</div>
+
+<div id="settings" class="tabpage hidden">
+<div class="card"><h2>🏠 首頁與店家資訊</h2><div class="form">
+<div class="field"><label>首頁主標題</label><input id="hero_title"></div><div class="field full"><label>首頁副標題</label><textarea id="hero_subtitle"></textarea></div>
+<div class="field"><label>介紹區標題</label><input id="intro_title"></div><div class="field"><label>介紹區副標題</label><input id="intro_subtitle"></div>
+<div class="field"><label>台主招募標題</label><input id="owner_title"></div><div class="field"><label>台主招募標語</label><input id="owner_tagline"></div>
+<div class="field full"><label>台主招募內容</label><textarea id="owner_text"></textarea></div>
+<div class="field"><label>店家名稱</label><input id="store_name"></div><div class="field"><label>店家地址</label><input id="address"></div>
+<div class="field"><label>群組 LINE｜前台「找到貓六爪－玩家群」</label><input id="line_url"></div><div class="field"><label>場主 LINE｜前台「了解合作方式」</label><input id="owner_line_url"></div>
+<div class="field"><label>Facebook 連結</label><input id="facebook_url"></div>
+</div><div class="actions"><button class="btn pink" onclick="saveSettings()">💾 儲存網站資訊</button><span id="settingsMsg" class="status"></span></div>
+<div class="preview"><b>即時預覽</b><h3 id="pvTitle"></h3><p id="pvSub"></p><div class="muted">📍 <span id="pvAddress"></span></div></div>
 </div></div>
 
+<div id="battle" class="tabpage hidden">
+<div class="card"><h2>⚔️ 戰鬥陀螺活動管理</h2><div class="muted">開啟後前台顯示活動；關閉後顯示「活動籌備中，敬請期待」。</div>
+<div class="field" style="margin-top:16px"><label><input id="battle_active" type="checkbox" style="width:auto;margin-right:8px"> 開啟本期戰鬥陀螺活動</label></div>
+<div class="form">
+<div class="field"><label>活動名稱</label><input id="battle_title"></div><div class="field"><label>活動日期</label><input id="battle_date" type="date"></div>
+<div class="field"><label>活動時間</label><input id="battle_time"></div><div class="field"><label>報名／相關連結</label><input id="battle_registration_url"></div>
+<div class="field full"><label>活動內容</label><textarea id="battle_content"></textarea></div>
+<div class="field full"><label>活動規則</label><textarea id="battle_rules"></textarea></div>
+<div class="field full"><label>活動圖片網址</label><input id="battle_image_url"></div>
+</div><div class="actions"><button class="btn" onclick="saveBattle()">💾 儲存戰鬥陀螺</button><span id="battleMsg" class="status"></span></div></div></div>
+</section>
 
-<div class="panel" id="battleSettings">
-<h2>⚔️ 戰鬥陀螺活動</h2>
-<div class="muted">管理戰鬥陀螺專區。開啟活動後，前台會顯示活動內容；關閉後顯示「活動籌備中，敬請期待」。</div>
-<div class="field"><label><input id="battle_active" type="checkbox" style="width:auto;margin-right:8px"> 開啟本期戰鬥陀螺活動</label></div>
-<div class="field"><label>活動名稱</label><input id="battle_title" placeholder="例如：貓六爪｜戰鬥陀螺交流賽"></div>
-<div class="grid">
-  <div class="field"><label>活動日期</label><input id="battle_date" type="date"></div>
-  <div class="field"><label>活動時間</label><input id="battle_time" placeholder="例如：14:00–17:00"></div>
-</div>
-<div class="field"><label>活動內容</label><textarea id="battle_content" placeholder="活動內容、地點、參加方式等"></textarea></div>
-<div class="field"><label>活動規則</label><textarea id="battle_rules" placeholder="比賽規則、注意事項等"></textarea></div>
-<div class="field"><label>活動圖片網址</label><input id="battle_image_url" placeholder="貼上圖片網址"></div>
-<div class="field"><label>報名／相關連結</label><input id="battle_registration_url" placeholder="沒有可留白"></div>
-<button class="btn" onclick="saveBattle()">💾 儲存戰鬥陀螺設定</button><span id="battleSaveStatus" class="status"></span>
-</div>
-
-<div class="panel">
-<button class="btn" onclick="save()">💾 儲存首頁設定</button><span id="status" class="status"></span>
-<div class="preview"><b>即時預覽</b><h3 id="pvTitle"></h3><p id="pvSub"></p><div class="address">📍 <span id="pvAddress"></span></div></div>
-</div>
-</div>
-</div>
+</section></div>
 
 <script>
 const SUPABASE_URL="https://qxbagchxhmstznkorcgk.supabase.co";
 const SUPABASE_KEY="sb_publishable_I7P-WhRTV2js0zbxf8Tfkg_rYjWf4oZ";
-const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let token=localStorage.getItem("mao6claw_access_token")||"", currentId=null, numberPanelActivityId=null;
 const $=id=>document.getElementById(id);
-const loginPanel=$("login"), editorPanel=$("editor"), loginError=$("loginError");
-const statusEl=$("status"), emailEl=$("email"), passwordEl=$("password"), logoutBtn=$("logoutBtn");
-const ids=["hero_title","hero_subtitle","intro_title","intro_subtitle","owner_title","owner_text","owner_tagline","store_name","address","line_url","owner_line_url","facebook_url"];
+const siteIds=["hero_title","hero_subtitle","intro_title","intro_subtitle","owner_title","owner_text","owner_tagline","store_name","address","line_url","owner_line_url","facebook_url"];
 
-function preview(){
-  $("pvTitle").textContent=$("hero_title").value||"";
-  $("pvSub").textContent=$("hero_subtitle").value||"";
-  $("pvAddress").textContent=$("address").value||"";
+async function rest(path,options={}){
+  const headers={apikey:SUPABASE_KEY,Authorization:"Bearer "+token,"Content-Type":"application/json",...(options.headers||{})};
+  const r=await fetch(SUPABASE_URL+path,{...options,headers});
+  const t=await r.text(); let d; try{d=t?JSON.parse(t):null}catch{d=t}
+  if(!r.ok) throw new Error(d?.message||d?.hint||d?.msg||t||"操作失敗");
+  return d;
 }
-ids.forEach(id=>$(id).addEventListener("input",preview));
-
-async function loginAdmin(){
-  loginError.textContent="";
-  statusEl.textContent="";
-  if(!emailEl.value || !passwordEl.value){
-    loginError.textContent="請輸入 Email 與密碼";
-    return;
-  }
-  const {error}=await client.auth.signInWithPassword({
-    email:emailEl.value.trim(),
-    password:passwordEl.value
-  });
-  if(error){
-    loginError.textContent="登入失敗："+error.message;
-    return;
-  }
-  await initEditor();
+async function login(){
+  $("loginMsg").textContent="登入中……";
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+    if(error)throw error;
+    token=data.session.access_token;
+    localStorage.setItem("mao6claw_access_token",token);
+    localStorage.setItem("mao6claw_user_email",data.user.email);
+    enter(data.user.email);
+  }catch(e){$("loginMsg").textContent="登入失敗："+e.message}
 }
+function enter(email){$("login").classList.add("hidden");$("app").classList.remove("hidden");$("logout").classList.remove("hidden");$("userPill").textContent="已登入："+email;loadAll();}
+function showTab(id,btn){
+  document.querySelectorAll(".tabpage").forEach(x=>x.classList.add("hidden"));
+  $(id).classList.remove("hidden");
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  if(btn)btn.classList.add("active");
+}
+async function loadAll(){await Promise.all([loadActivities(),loadSettings(),loadBattle(),loadRecent()]);}
 
-async function initEditor(){
-  const {data,error}=await client.auth.getSession();
-  if(error){
-    loginError.textContent="無法確認登入狀態："+error.message;
-    return;
-  }
-  if(!data.session){
-    loginPanel.style.display="block";
-    editorPanel.style.display="none";
-    logoutBtn.style.display="none";
-    return;
-  }
-
-  loginPanel.style.display="none";
-  editorPanel.style.display="block";
-  logoutBtn.style.display="inline-flex";
-
-  const result=await client.from("site_settings").select("*").limit(1).maybeSingle();
-  if(result.error){
-    statusEl.textContent="讀取失敗："+result.error.message;
-    return;
-  }
-  if(!result.data){
-    statusEl.textContent="找不到網站設定資料";
-    return;
-  }
-
-  ids.forEach(id=>$(id).value=result.data[id]??"");
-  if($("battle_active")) $("battle_active").checked=!!result.data.battle_active;
-  ["battle_title","battle_date","battle_time","battle_content","battle_rules","battle_image_url","battle_registration_url"].forEach(id=>{
-    if($(id)) $(id).value=result.data[id]??"";
-  });
-  preview();
+async function loadActivities(){
+  try{
+    const acts=await rest("/rest/v1/activities?select=*&order=created_at.desc");
+    $("activityList").innerHTML="";
+    let active=0,totalTaken=0,totalRemain=0,current=null;
+    for(const a of acts){
+      const nums=await rest("/rest/v1/activity_numbers?activity_id=eq."+a.id+"&select=status");
+      const taken=nums.filter(x=>x.status==="taken").length, remain=nums.length-taken;
+      if(a.status==="active"){
+        active++;
+        if(current===null){current=a;totalTaken=taken;totalRemain=remain;}
+      }
+      const div=document.createElement("div");div.className="activity";
+      div.innerHTML='<div><b>'+esc(a.title)+'</b><div class="muted">'+(a.total_numbers||nums.length)+' 個號碼　·　已選 '+taken+'　·　剩餘 '+remain+'</div></div><div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span class="badge '+(a.status==="active"?"":"off")+'">'+(a.status==="active"?"進行中":a.status==="draft"?"草稿":"已結束")+'</span><button class="btn dark" onclick="viewNumbers(\''+a.id+'\')">號碼管理</button><button class="btn dark" onclick="viewParticipants(\''+a.id+'\')">參加紀錄</button><button class="btn dark" onclick="editActivity(\''+a.id+'\')">編輯</button></div>';
+      $("activityList").appendChild(div);
+    }
+    $("totalActivities").textContent=acts.length;$("activeActivities").textContent=active;$("taken").textContent=totalTaken;$("remain").textContent=totalRemain;
+    $("currentSummary").innerHTML=current?'<b style="font-size:20px">'+esc(current.title)+'</b><div class="muted" style="margin-top:6px">獎品：'+esc(current.prize||"未設定")+'　｜　已選 '+totalTaken+'　｜　剩餘 '+totalRemain+'</div><div class="actions"><button class="btn pink" onclick="showTab(\'activities\')">管理這場活動</button></div>':'<div class="empty">目前沒有進行中的娃娃機活動。</div>';
+  }catch(e){$("activityList").innerHTML='<div class="empty">讀取活動失敗：'+esc(e.message)+'</div>'}
+}
+async function loadRecent(){
+  try{
+    const rows=await rest("/rest/v1/participants?select=id,activity_id,selected_number,photo_url,created_at&order=created_at.desc&limit=10");
+    if(!rows.length){$("recentBox").innerHTML='<div class="empty">目前沒有參加紀錄。</div>';return}
+    $("recentBox").innerHTML='<div class="tableWrap"><table class="table"><thead><tr><th>號碼</th><th>時間</th><th>照片</th><th>活動</th></tr></thead><tbody>'+rows.map(r=>'<tr><td><b>'+String(r.selected_number).padStart(3,"0")+'</b></td><td>'+new Date(r.created_at).toLocaleString("zh-TW",{hour12:false})+'</td><td>'+(r.photo_url?'<a target="_blank" href="'+esc(r.photo_url)+'">查看</a>':"—")+'</td><td>'+esc(String(r.activity_id).slice(0,8))+'…</td></tr>').join("")+'</tbody></table></div>';
+  }catch(e){$("recentBox").textContent="讀取失敗："+e.message}
 }
 
-async function save(){
-  statusEl.textContent="儲存中…";
-  const values={};
-  ids.forEach(id=>values[id]=$(id).value);
-  values.updated_at=new Date().toISOString();
-
-  const row=await client.from("site_settings").select("id").limit(1).maybeSingle();
-  if(row.error){
-    statusEl.textContent="讀取設定失敗："+row.error.message;
-    return;
-  }
-  if(!row.data){
-    statusEl.textContent="找不到 site_settings 資料列";
-    return;
-  }
-
-  const result=await client.from("site_settings").update(values).eq("id",row.data.id);
-  if(result.error){
-    statusEl.textContent="儲存失敗："+result.error.message;
-    return;
-  }
-  statusEl.textContent="✓ 已儲存到 Supabase";
+async function viewNumbers(id){numberPanelActivityId=id;$("numberPanel").classList.remove("hidden");$("numberDetail").classList.add("hidden");await loadNumberPanel();$("numberPanel").scrollIntoView({behavior:"smooth"});}
+async function loadNumberPanel(){
+  if(!numberPanelActivityId)return;
+  try{const nums=await rest("/rest/v1/activity_numbers?activity_id=eq."+numberPanelActivityId+"&select=id,number,status,participant_id,claimed_at&order=number.asc");const taken=nums.filter(n=>n.status==="taken").length;$("numberSummary").innerHTML="已選 <b>"+taken+"</b> ／ "+nums.length+"　　剩餘 <b class='cyan'>"+(nums.length-taken)+"</b>";$("numberGrid").innerHTML="";nums.forEach(n=>{const b=document.createElement("button");b.textContent=String(n.number).padStart(3,"0");b.style.cssText="border:1px solid #39466e;background:"+(n.status==="taken"?"#252c43":"#171e38")+";color:"+(n.status==="taken"?"#9ba5c4":"#fff")+";border-radius:8px;padding:10px 2px;cursor:"+(n.status==="taken"?"pointer":"default")+";font-weight:800";if(n.status==="taken")b.onclick=()=>showNumberDetail(n);$("numberGrid").appendChild(b)})}catch(e){$("numberSummary").textContent="讀取失敗："+e.message}
+}
+async function showNumberDetail(n){
+  $("numberDetail").classList.remove("hidden");$("numberDetailContent").innerHTML="讀取中……";
+  try{const rows=await rest("/rest/v1/participants?id=eq."+n.participant_id+"&select=id,selected_number,photo_url,created_at&limit=1");if(!rows.length){$("numberDetailContent").textContent="找不到紀錄";return}const r=rows[0];$("numberDetailContent").innerHTML='<p><b>號碼：</b>'+String(r.selected_number).padStart(3,"0")+'</p><p><b>選號時間：</b>'+new Date(r.created_at).toLocaleString("zh-TW",{hour12:false})+'</p>'+(r.photo_url?'<a href="'+esc(r.photo_url)+'" target="_blank"><img src="'+esc(r.photo_url)+'" style="max-width:300px;max-height:300px;object-fit:contain;border-radius:14px"></a>':'<div class="muted">沒有照片</div>')}catch(e){$("numberDetailContent").textContent="讀取失敗："+e.message}
+}
+async function viewParticipants(id){$("participantsPanel").classList.remove("hidden");$("participantBox").innerHTML='<div class="empty">讀取中……</div>';await loadParticipants(id);$("participantsPanel").scrollIntoView({behavior:"smooth"});}
+async function loadParticipants(id){
+  try{const rows=await rest("/rest/v1/participants?activity_id=eq."+id+"&select=id,selected_number,photo_url,created_at&order=created_at.desc");if(!rows.length){$("participantBox").innerHTML='<div class="empty">這場活動目前沒有參加紀錄。</div>';return}$("participantBox").innerHTML='<div class="tableWrap"><table class="table"><thead><tr><th>照片</th><th>號碼</th><th>選號時間</th><th>紀錄 ID</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+(r.photo_url?'<a href="'+esc(r.photo_url)+'" target="_blank"><img class="photoThumb" src="'+esc(r.photo_url)+'"></a>':"—")+'</td><td><b>'+String(r.selected_number).padStart(3,"0")+'</b></td><td>'+new Date(r.created_at).toLocaleString("zh-TW",{hour12:false})+'</td><td class="muted">'+esc(r.id)+'</td></tr>').join("")+'</tbody></table></div>'}catch(e){$("participantBox").textContent="讀取失敗："+e.message}
 }
 
+function newActivity(){currentId=null;$("editorTitle").textContent="新增活動";$("title").value="夾中選號抽獎";$("prize").value="本期抽獎獎品";$("count").value="200";$("customField").style.display="none";$("activityStatus").value="draft";$("description").value="夾中指定獎品即可選號 1 次。選一個喜歡的號碼，全部號碼選完後進行抽獎。";$("rules").value="1. 夾中指定獎品即可參加。\\n2. 每次可選 1 個號碼。\\n3. 號碼選定後無法更換。\\n4. 全部號碼選完後進行開獎。";$("editor").classList.remove("hidden");}
+async function editActivity(id){const a=(await rest("/rest/v1/activities?id=eq."+id+"&select=*&limit=1"))[0];if(!a)return;currentId=id;$("editorTitle").textContent="編輯活動";$("title").value=a.title||"";$("prize").value=a.prize||"";$("description").value=a.description||"";$("rules").value=a.rules||"";$("activityStatus").value=a.status||"draft";if(["200","250"].includes(String(a.total_numbers))){$("count").value=String(a.total_numbers);$("customField").style.display="none"}else{$("count").value="custom";$("custom").value=a.total_numbers||"";$("customField").style.display="flex"}$("editor").classList.remove("hidden");}
+$("count").addEventListener("change",e=>$("customField").style.display=e.target.value==="custom"?"flex":"none");
+function closeEditor(){$("editor").classList.add("hidden")}
+$("activityImage").addEventListener("change",e=>{const f=e.target.files[0];if(!f){$("imagePreview").textContent="尚未選擇圖片";return}const img=document.createElement("img");img.src=URL.createObjectURL(f);img.style.cssText="max-width:260px;max-height:180px;border-radius:12px";$("imagePreview").innerHTML="";$("imagePreview").appendChild(img)});
+async function uploadActivityImage(file){const ext=(file.name.split(".").pop()||"jpg").replace(/[^a-zA-Z0-9]/g,"")||"jpg";const path="activities/"+Date.now()+"_"+crypto.randomUUID()+"."+ext;const r=await fetch(SUPABASE_URL+"/storage/v1/object/claw-photos/"+path,{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+token,"Content-Type":file.type||"image/jpeg","x-upsert":"false"},body:file});if(!r.ok)throw new Error(await r.text());return SUPABASE_URL+"/storage/v1/object/public/claw-photos/"+path}
+async function saveActivity(){
+  const c=$("count").value,total=c==="custom"?parseInt($("custom").value):parseInt(c);if(!total||total<1||total>999){alert("請輸入 1～999");return}
+  $("saveMsg").textContent="儲存中……";let imageUrl=null;try{const file=$("activityImage").files[0];if(file)imageUrl=await uploadActivityImage(file);const payload={template_type:"claw_lottery",title:$("title").value.trim()||"夾中選號抽獎",prize:$("prize").value.trim(),description:$("description").value,rules:$("rules").value,total_numbers:total,status:$("activityStatus").value};if(imageUrl)payload.image_url=imageUrl;if(currentId){const old=(await rest("/rest/v1/activities?id=eq."+currentId+"&select=total_numbers"))[0];await rest("/rest/v1/activities?id=eq."+currentId,{method:"PATCH",body:JSON.stringify(payload),headers:{Prefer:"return=minimal"}});if(old&&old.total_numbers!==total){const existing=await rest("/rest/v1/activity_numbers?activity_id=eq."+currentId+"&select=number");const have=new Set(existing.map(x=>x.number));const rows=[];for(let n=1;n<=total;n++)if(!have.has(n))rows.push({activity_id:currentId,number:n,status:"available"});for(let i=0;i<rows.length;i+=500)if(rows.length)await rest("/rest/v1/activity_numbers",{method:"POST",body:JSON.stringify(rows.slice(i,i+500)),headers:{Prefer:"return=minimal"}})}}else{const created=await rest("/rest/v1/activities",{method:"POST",body:JSON.stringify(payload),headers:{Prefer:"return=representation"}});const a=created[0];const rows=Array.from({length:total},(_,i)=>({activity_id:a.id,number:i+1,status:"available"}));for(let i=0;i<rows.length;i+=500)await rest("/rest/v1/activity_numbers",{method:"POST",body:JSON.stringify(rows.slice(i,i+500)),headers:{Prefer:"return=minimal"}})}$("saveMsg").textContent="儲存完成。";closeEditor();await loadActivities();}catch(e){$("saveMsg").textContent="儲存失敗："+e.message}
+}
 
+async function loadSettings(){
+  try{const r=await rest("/rest/v1/site_settings?select=*&limit=1");if(!r.length)return;siteIds.forEach(id=>$(id).value=r[0][id]??"");previewSettings()}catch(e){$("settingsMsg").textContent="讀取失敗："+e.message}
+}
+function previewSettings(){$("pvTitle").textContent=$("hero_title").value||"";$("pvSub").textContent=$("hero_subtitle").value||"";$("pvAddress").textContent=$("address").value||""}
+siteIds.forEach(id=>{if($(id))$(id).addEventListener("input",previewSettings)});
+async function saveSettings(){
+  $("settingsMsg").textContent="儲存中……";
+  try{const rows=await rest("/rest/v1/site_settings?select=id&limit=1");if(!rows.length)throw new Error("找不到 site_settings 資料列");const v={};siteIds.forEach(id=>v[id]=$(id).value);v.updated_at=new Date().toISOString();await rest("/rest/v1/site_settings?id=eq."+rows[0].id,{method:"PATCH",body:JSON.stringify(v),headers:{Prefer:"return=minimal"}});$("settingsMsg").textContent="✓ 已儲存到 Supabase"}catch(e){$("settingsMsg").textContent="儲存失敗："+e.message}
+}
+
+async function loadBattle(){
+  try{const r=await rest("/rest/v1/site_settings?select=battle_active,battle_title,battle_date,battle_time,battle_content,battle_rules,battle_image_url,battle_registration_url&limit=1");if(!r.length)return;const d=r[0];$("battle_active").checked=!!d.battle_active;["battle_title","battle_date","battle_time","battle_content","battle_rules","battle_image_url","battle_registration_url"].forEach(id=>$(id).value=d[id]??"")}catch(e){$("battleMsg").textContent="讀取失敗："+e.message}
+}
 async function saveBattle(){
-  $("battleSaveStatus").textContent="儲存中…";
-  const row=await client.from("site_settings").select("id").limit(1).maybeSingle();
-  if(row.error||!row.data){$("battleSaveStatus").textContent="找不到 site_settings 資料列";return;}
-  const values={
-    battle_active:$("battle_active").checked,
-    battle_title:$("battle_title").value.trim(),
-    battle_date:$("battle_date").value||null,
-    battle_time:$("battle_time").value.trim(),
-    battle_content:$("battle_content").value.trim(),
-    battle_rules:$("battle_rules").value.trim(),
-    battle_image_url:$("battle_image_url").value.trim(),
-    battle_registration_url:$("battle_registration_url").value.trim(),
-    updated_at:new Date().toISOString()
-  };
-  const {error}=await client.from("site_settings").update(values).eq("id",row.data.id);
-  $("battleSaveStatus").textContent=error?"儲存失敗："+error.message:"✓ 已儲存到 Supabase";
+  $("battleMsg").textContent="儲存中……";
+  try{const rows=await rest("/rest/v1/site_settings?select=id&limit=1");if(!rows.length)throw new Error("找不到 site_settings 資料列");const v={battle_active:$("battle_active").checked,battle_title:$("battle_title").value.trim(),battle_date:$("battle_date").value||null,battle_time:$("battle_time").value.trim(),battle_content:$("battle_content").value.trim(),battle_rules:$("battle_rules").value.trim(),battle_image_url:$("battle_image_url").value.trim(),battle_registration_url:$("battle_registration_url").value.trim(),updated_at:new Date().toISOString()};await rest("/rest/v1/site_settings?id=eq."+rows[0].id,{method:"PATCH",body:JSON.stringify(v),headers:{Prefer:"return=minimal"}});$("battleMsg").textContent="✓ 已儲存到 Supabase"}catch(e){$("battleMsg").textContent="儲存失敗："+e.message}
 }
-
-async function logoutAdmin(){
-  await client.auth.signOut();
-  location.reload();
-}
-
-window.addEventListener("load",initEditor);
-client.auth.onAuthStateChange((event)=>{
-  if(event==="SIGNED_OUT") location.reload();
-});
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
+async function logout(){await sb.auth.signOut();localStorage.removeItem("mao6claw_access_token");localStorage.removeItem("mao6claw_user_email");location.reload()}
+const savedEmail=localStorage.getItem("mao6claw_user_email");
+window.addEventListener("load",()=>{if(token&&savedEmail)enter(savedEmail)});
 </script>
-</body>
-</html>
+</body></html>
